@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"sync"
 
-	"code.google.com/p/go-uuid/uuid"
+	"github.com/satori/go.uuid"
 )
 
 const CHANNEL_HANDSHAKE = "/meta/handshake"
@@ -399,7 +399,7 @@ func (f *FayeServer) publish(channel, id string, data interface{}) ([]byte, erro
 	Generate a clientId for use in the communication with the client
 */
 func generateClientId() string {
-	return uuid.New()
+	return uuid.NewV4().String()
 }
 
 func (f *FayeServer) nextMessageId() string {

@@ -12,7 +12,7 @@ package fayeserver
 
 import (
 	"fmt"
-	eventsource "github.com/antage/eventsource/http"
+	"gopkg.in/antage/eventsource.v1"
 	"github.com/gorilla/websocket"
 	"net/http"
 	"os"
@@ -108,7 +108,7 @@ func (c *Connection) reader(f *FayeServer) {
 
 func (c *Connection) esWrite(payload []byte) error {
 	fmt.Println("Writing to eventsource: ", string(payload))
-	c.es.SendMessage(string(payload), "", "")
+	c.es.SendEventMessage(string(payload), "", "")
 	return nil
 }
 
