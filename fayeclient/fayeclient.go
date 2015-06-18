@@ -14,7 +14,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/websocket"
-	"github.com/pcrawfor/fayego/fayeserver"
+	"github.com/gyminee/fayego/fayeserver"
 	"net"
 	"net/url"
 	"time"
