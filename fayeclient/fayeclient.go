@@ -13,11 +13,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gorilla/websocket"
-	"github.com/gyminee/fayego/fayeserver"
 	"net"
 	"net/url"
 	"time"
+
+	"github.com/gorilla/websocket"
+	"github.com/gyminee/fayego/fayeserver"
 )
 
 const DEFAULT_HOST = "localhost:4001/faye"
@@ -99,7 +100,7 @@ func NewFayeClient(host string) *FayeClient {
 		host = DEFAULT_HOST
 	}
 	// instantiate a FayeClient and return
-	return &FayeClient{Host: host, fayeState: StateWSDisconnected, MessageChan: make(chan ClientMessage, 100), messageNumber: 0, keepAliveSecs: DEFAULT_KEEP_ALIVE_SECS, keepAliveChan: make(chan bool)}
+	return &FayeClient{Host: host, fayeState: StateWSDisconnected, MessageChan: make(chan ClientMessage, 500), messageNumber: 0, keepAliveSecs: DEFAULT_KEEP_ALIVE_SECS, keepAliveChan: make(chan bool)}
 }
 
 func (f *FayeClient) SetKeepAliveIntervalSeconds(secs int) {
@@ -171,7 +172,7 @@ func (f *FayeClient) keepAlive() {
 				return
 			}
 		case <-c:
-			fmt.Println("Send keep-alive: ", time.Now())
+			// fmt.Println("Send keep-alive: ", time.Now())
 			f.connect()
 		}
 
