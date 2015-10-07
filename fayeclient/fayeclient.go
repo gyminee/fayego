@@ -80,6 +80,7 @@ type FayeClient struct {
 	Host          string
 	MessageChan   chan ClientMessage // any messages recv'd by the client will be sent to the message channel - TODO: remap this to a set of subscription message channels one per active subscription
 	conn          *Connection
+	auth          string
 	fayeState     int
 	readyChan     chan bool
 	clientId      string
@@ -95,12 +96,12 @@ type ClientMessage struct {
 	Ext     map[string]interface{}
 }
 
-func NewFayeClient(host string) *FayeClient {
+func NewFayeClient(host string, auth string) *FayeClient {
 	if len(host) == 0 {
 		host = DEFAULT_HOST
 	}
 	// instantiate a FayeClient and return
-	return &FayeClient{Host: host, fayeState: StateWSDisconnected, MessageChan: make(chan ClientMessage, 500), messageNumber: 0, keepAliveSecs: DEFAULT_KEEP_ALIVE_SECS, keepAliveChan: make(chan bool)}
+	return &FayeClient{Host: host, fayeState: StateWSDisconnected, MessageChan: make(chan ClientMessage, 500), auth: auth, messageNumber: 0, keepAliveSecs: DEFAULT_KEEP_ALIVE_SECS, keepAliveChan: make(chan bool)}
 }
 
 func (f *FayeClient) SetKeepAliveIntervalSeconds(secs int) {
@@ -357,7 +358,12 @@ func (f *FayeClient) disconnect() {
 Subscribe the client to a channel
 */
 func (f *FayeClient) subscribe(channel string) error {
-	message := fayeserver.FayeResponse{Channel: fayeserver.CHANNEL_SUBSCRIBE, ClientId: f.clientId, Subscription: channel}
+	message := fayeserver.FayeResponse{
+		Channel:      fayeserver.CHANNEL_SUBSCRIBE,
+		ClientId:     f.clientId,
+		Subscription: channel,
+		Ext:          map[string]string{"auth": f.auth},
+	}
 	//fmt.Println("Subscribe message: ", message)
 	err := f.writeMessage(message)
 	if err != nil {
@@ -385,7 +391,13 @@ func (f *FayeClient) unsubscribe(channel string) error {
   Publish a message to a channel.
 */
 func (f *FayeClient) publish(channel string, data map[string]interface{}) error {
-	message := fayeserver.FayeResponse{Channel: channel, ClientId: f.clientId, Id: f.messageId(), Data: data}
+	message := fayeserver.FayeResponse {
+        Channel: channel,
+        ClientId: f.clientId,
+        Id: f.messageId(),
+        Data: data,
+        Ext: map[string]string { "auth": f.auth },
+    }
 	//fmt.Println("publish message: ", message)
 	err := f.writeMessage(message)
 	if err != nil {
